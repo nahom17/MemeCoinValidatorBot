@@ -4,6 +4,8 @@ import json
 import os
 from datetime import datetime
 import logging
+import subprocess
+import signal
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +21,32 @@ LOG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'logs'))
 
 # Ensure logs directory exists
 os.makedirs(LOG_DIR, exist_ok=True)
+
+bot_process = None
+
+@app.route('/start-bot', methods=['POST'])
+def start_bot():
+    global bot_process
+    if bot_process and bot_process.poll() is None:
+        return jsonify({'status': 'already running'})
+    bot_process = subprocess.Popen(['python', 'run.py'])
+    return jsonify({'status': 'started'})
+
+@app.route('/stop-bot', methods=['POST'])
+def stop_bot():
+    global bot_process
+    if bot_process and bot_process.poll() is None:
+        bot_process.terminate()
+        bot_process.wait(timeout=10)
+        bot_process = None
+        return jsonify({'status': 'stopped'})
+    return jsonify({'status': 'not running'})
+
+@app.route('/bot-status')
+def bot_status():
+    global bot_process
+    running = bot_process is not None and bot_process.poll() is None
+    return jsonify({'running': running})
 
 @app.route("/")
 def dashboard():
@@ -208,8 +236,10 @@ def dashboard():
         <h1>🚀 Memecoin Bot Dashboard</h1>
 
         <div class="status-bar">
-            <span class="status-indicator"></span>
+            <span class="status-indicator" id="status-dot"></span>
             <strong>Bot Status:</strong> <span id="bot-status">Connecting...</span>
+            <button id="start-bot" style="margin-left:20px;">Start Bot</button>
+            <button id="stop-bot" style="margin-left:10px;">Stop Bot</button>
         </div>
 
         <div class="stats">
@@ -309,6 +339,29 @@ def dashboard():
             }
         }
 
+        async function updateBotStatus() {
+            try {
+                const res = await fetch('/bot-status');
+                const data = await res.json();
+                const running = data.running;
+                document.getElementById('bot-status').textContent = running ? 'Running' : 'Stopped';
+                document.getElementById('status-dot').style.background = running ? '#00ff88' : '#ff4444';
+                document.getElementById('start-bot').disabled = running;
+                document.getElementById('stop-bot').disabled = !running;
+            } catch (e) {
+                document.getElementById('bot-status').textContent = 'Error';
+                document.getElementById('status-dot').style.background = '#ff4444';
+            }
+        }
+        document.getElementById('start-bot').onclick = async function() {
+            await fetch('/start-bot', {method: 'POST'});
+            setTimeout(updateBotStatus, 1000);
+        };
+        document.getElementById('stop-bot').onclick = async function() {
+            await fetch('/stop-bot', {method: 'POST'});
+            setTimeout(updateBotStatus, 1000);
+        };
+
         // Initial load
         fetchData();
 
@@ -316,6 +369,8 @@ def dashboard():
         setInterval(fetchData, 5000);
         // Auto-refresh terminal log every 5 seconds
         setInterval(fetchTerminalLog, 5000);
+        setInterval(updateBotStatus, 5000);
+        updateBotStatus();
 
         // Manual refresh on page focus
         document.addEventListener('visibilitychange', () => {
