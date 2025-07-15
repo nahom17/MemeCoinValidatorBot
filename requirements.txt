@@ -9,3 +9,4 @@ beautifulsoup4==4.12.2
 websocket-client==1.6.4
 gunicorn==21.2.0
 Werkzeug==2.3.7
+base58
