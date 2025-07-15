@@ -1,0 +1,3 @@
+{"ok":true,"result":[{"update_id":83992446,
+"message":{"message_id":11,"from":{"id":1049095139,"is_bot":false,"first_name":"TRUMAX","last_name":"$TRQMX","username":"TRQMX","language_code":"en"},"chat":{"id":1049095139,"first_name":"TRUMAX","last_name":"$TRQMX","username":"TRQMX","type":"private"},"date":1752258664,"text":"/start","entities":[{"offset":0,"length":6,"type":"bot_command"}]}},{"update_id":83992447,
+"message":{"message_id":12,"from":{"id":1049095139,"is_bot":false,"first_name":"TRUMAX","last_name":"$TRQMX","username":"TRQMX","language_code":"en"},"chat":{"id":1049095139,"first_name":"TRUMAX","last_name":"$TRQMX","username":"TRQMX","type":"private"},"date":1752258821,"text":"\"test\""}}]}

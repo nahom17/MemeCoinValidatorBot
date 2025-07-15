@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Memecoin Bot Dashboard</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #111; color: #eee; }
+        h1 { color: #0f0; }
+        canvas { background: #222; margin-top: 20px; border-radius: 8px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Memecoin Bot Graph Dashboard</h1>
+    <p><strong>Wallet Usage Chart</strong></p>
+    <canvas id="walletChart" width="400" height="200"></canvas>
+
+    <p><strong>Trades vs MEV Flags</strong></p>
+    <canvas id="activityChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function fetchChartData() {
+            const tradeRes = await fetch('/logs/trades');
+            const flagRes = await fetch('/logs/mev');
+            const trades = await tradeRes.json();
+            const flags = await flagRes.json();
+
+            const walletMap = {};
+            trades.forEach(t => {
+                const w = t.wallet || "unknown";
+                walletMap[w] = (walletMap[w] || 0) + 1;
+            });
+
+            const walletLabels = Object.keys(walletMap);
+            const walletCounts = Object.values(walletMap);
+
+            const ctx1 = document.getElementById('walletChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: walletLabels,
+                    datasets: [{
+                        label: 'Wallet Usage',
+                        data: walletCounts,
+                        backgroundColor: 'rgba(0,255,0,0.6)'
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+
+            const ctx2 = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: [...Array(trades.length).keys()],
+                    datasets: [
+                        {
+                            label: 'Trades',
+                            data: trades.map((_, i) => i + 1),
+                            borderColor: 'lime',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'MEV Flags',
+                            data: flags.map((_, i) => i + 1),
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        fetchChartData();
+    </script>
+</body>
+</html>

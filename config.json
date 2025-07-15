@@ -1,0 +1,7 @@
+{
+    "enable_mev_detection": true,
+    "max_slippage": 0.5,
+    "min_liquidity": 1.0,
+    "block_sniper_wallets": true,
+    "log_trades": true
+}
