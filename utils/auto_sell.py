@@ -1,6 +1,7 @@
 
 import time
 import random
+from utils.log_print import log_print
 
 def evaluate_sell(token_data, trade_entry):
     # Placeholder logic — adjust for real wallet or API integration
@@ -24,5 +25,5 @@ def get_live_price(mint):
     return random.uniform(0.8, 1.5)  # Simulate price fluctuation
 
 def execute_sell(mint, amount):
-    print(f"[AUTO-SELL] Selling {amount} of {mint}...")
+    log_print(f"[AUTO-SELL] Selling {amount} of {mint}...")
     # Integrate actual sell function here (Raydium/Jupiter Swap API or SDK)

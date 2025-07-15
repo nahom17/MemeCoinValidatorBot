@@ -1,5 +1,6 @@
 # bot/scanner.py
 import json, websocket, threading, time, os, requests, random
+from utils.log_print import log_print
 
 # Moralis API setup
 MORALIS_KEY = os.getenv("MORALIS_KEY")
@@ -67,14 +68,14 @@ def run_scanner(on_token_callback):
             mint = data["mint"]
             sym = data.get("symbol", mint[:6])
             uri = data.get("uri")
-            print(f"🚀 New token: {sym} ({mint})")
+            log_print(f"🚀 New token: {sym} ({mint})")
 
             meta = fetch_token_metadata(mint, uri)
             if not meta:
-                print(f"⛔ Metadata unavailable for {sym} ({mint})")
+                log_print(f"⛔ Metadata unavailable for {sym} ({mint})")
                 return
 
-            print(f"✅ Metadata fetched: {meta.get('name')}, Image: {meta.get('image')}")
+            log_print(f"✅ Metadata fetched: {meta.get('name')}, Image: {meta.get('image')}")
             data["metadata"] = meta
             on_token_callback(data)
 
@@ -89,7 +90,7 @@ def run_scanner(on_token_callback):
                 if ks:
                     ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": ks}))
             except Exception as e:
-                print("❌ Error loading manual tokens:", e)
+                log_print("❌ Error loading manual tokens:", e)
 
     ws = websocket.WebSocketApp(
         "wss://pumpportal.fun/api/data",
@@ -98,4 +99,4 @@ def run_scanner(on_token_callback):
         on_close=lambda ws,c,m: None
     )
     threading.Thread(target=ws.run_forever, daemon=True).start()
-    print("🔗 Scanner connected to WebSocket")
+    log_print("🔗 Scanner connected to WebSocket")

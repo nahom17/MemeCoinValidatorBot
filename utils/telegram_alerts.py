@@ -1,6 +1,7 @@
 
 import os
 import requests
+from utils.log_print import log_print
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
@@ -16,4 +17,4 @@ def send_alert(message):
     try:
         requests.post(url, data=data)
     except Exception as e:
-        print(f"[Telegram Error] {e}")
+        log_print(f"[Telegram Error] {e}")

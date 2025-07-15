@@ -1,4 +1,5 @@
 import random
+from utils.log_print import log_print
 
 class TradeTracker:
     def __init__(self, entry_price):
@@ -12,12 +13,12 @@ class TradeTracker:
             self.peak_price = current_price
 
         if current_price >= self.entry_price * self.take_profit_x:
-            print(f"🎯 Profit target reached! {current_price:.4f} SOL (3x). Sell now!")
+            log_print(f"🎯 Profit target reached! {current_price:.4f} SOL (3x). Sell now!")
             return "take_profit"
 
         if current_price <= self.peak_price * (1 - self.trailing_stop_pct):
-            print(f"🔻 Price dropped below trailing stop: {current_price:.4f} SOL. Sell to protect gains.")
+            log_print(f"🔻 Price dropped below trailing stop: {current_price:.4f} SOL. Sell to protect gains.")
             return "stop_loss"
 
-        print(f"📊 Current: {current_price:.4f}, Entry: {self.entry_price:.4f}, Peak: {self.peak_price:.4f}")
+        log_print(f"📊 Current: {current_price:.4f}, Entry: {self.entry_price:.4f}, Peak: {self.peak_price:.4f}")
         return "hold"

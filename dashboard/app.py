@@ -39,7 +39,7 @@ def dashboard():
             padding: 20px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
         }
         h1 {
@@ -128,12 +128,77 @@ def dashboard():
             font-size: 0.8em;
             margin-top: 20px;
         }
-        @media (max-width: 768px) {
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+        .terminal-scan-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .terminal-scan-card {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            height: auto%;
+            display: flex;
+            flex-direction: column;
+        }
+        #terminal-log {
+            background: rgba(0,0,0,0.85);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            line-height: 1.5;
+            min-height:5%;
+            max-height: 50vh;
+            color: #00ff88;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+            flex: 1 1 auto;
+        }
+        .scan-iframe {
+            width: 100%;
+            min-height: 400px;
+            height: 70vh;
+            border: none;
+            border-radius: 8px;
+            background: #111;
+        }
+        #new-tokens {
+            background: rgba(0,0,0,0.85);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            line-height: 1.5;
+            min-height: 400px;
+            max-height: 70vh;
+            color: #00ff88;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+            flex: 1 1 auto;
+        }
+        @media (max-width: 1200px) {
             .grid {
                 grid-template-columns: 1fr;
             }
             h1 {
                 font-size: 2em;
+            }
+            #terminal-log, .scan-iframe, #new-tokens {
+                min-height: 250px;
+                height: 40vh;
             }
         }
     </style>
@@ -175,6 +240,12 @@ def dashboard():
             <div class="card">
                 <h3>🚨 MEV Alerts</h3>
                 <pre id="flags">Loading alerts...</pre>
+            </div>
+        </div>
+        <div class="terminal-scan-grid">
+            <div class="terminal-scan-card">
+                <h3>🖥️ Terminal Output (Live)</h3>
+                <pre id="terminal-log">Loading terminal output...</pre>
             </div>
         </div>
 
@@ -228,16 +299,29 @@ def dashboard():
             }
         }
 
+        async function fetchTerminalLog() {
+            try {
+                const res = await fetch('/logs/terminal');
+                const text = await res.text();
+                document.getElementById("terminal-log").textContent = text;
+            } catch (e) {
+                document.getElementById("terminal-log").textContent = "Error loading terminal log.";
+            }
+        }
+
         // Initial load
         fetchData();
 
         // Auto-refresh every 5 seconds
         setInterval(fetchData, 5000);
+        // Auto-refresh terminal log every 5 seconds
+        setInterval(fetchTerminalLog, 5000);
 
         // Manual refresh on page focus
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 fetchData();
+                fetchTerminalLog(); // Also refresh terminal log on page focus
             }
         });
     </script>
@@ -272,6 +356,20 @@ def mev():
     except Exception as e:
         logger.error(f"Error loading MEV flags: {e}")
         return jsonify([])
+
+@app.route("/logs/terminal")
+def terminal_log():
+    log_path = os.path.join(LOG_DIR, "terminal_output.log")
+    try:
+        if not os.path.exists(log_path):
+            return "No terminal output yet.", 200, {"Content-Type": "text/plain"}
+        with open(log_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            last_100 = lines[-100:] if len(lines) > 100 else lines
+            return "".join(last_100), 200, {"Content-Type": "text/plain"}
+    except Exception as e:
+        logger.error(f"Error reading terminal log: {e}")
+        return f"Error reading log: {e}", 500, {"Content-Type": "text/plain"}
 
 @app.route("/status")
 def status():

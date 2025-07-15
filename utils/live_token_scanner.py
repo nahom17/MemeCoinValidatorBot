@@ -3,6 +3,7 @@ import asyncio
 import websockets
 import json
 from utils.telegram_alerts import send_alert
+from utils.log_print import log_print
 
 # Pump.fun WebSocket for real-time new token events
 PUMPFUN_WS = "wss://pumpportal.io/api/ws"
@@ -12,7 +13,7 @@ async def handle_new_token(data):
     mint = data.get("mint")
     sol_raised = data.get("sol_raised", 0)
     msg = f"🆕 New Token Detected: {symbol}\nMint: {mint}\nRaised: {sol_raised} SOL"
-    print(msg)
+    log_print(msg)
     send_alert(msg)
 
 async def scanner():
@@ -24,7 +25,7 @@ async def scanner():
                 if parsed.get("type") == "new_token":
                     await handle_new_token(parsed.get("data", {}))
             except Exception as e:
-                print(f"[Scanner Error] {e}")
+                log_print(f"[Scanner Error] {e}")
                 await asyncio.sleep(3)
 
 def start_scanner():
