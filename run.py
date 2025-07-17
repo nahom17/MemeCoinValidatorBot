@@ -2,6 +2,9 @@
 import json
 import time
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 CONFIG = json.load(open('config.json'))
 

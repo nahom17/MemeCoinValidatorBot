@@ -1,21 +1,35 @@
 import os
 from datetime import datetime
+import logging
 
 LOG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'logs'))
 LOG_FILE = os.path.join(LOG_DIR, 'terminal_output.log')
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
-def log_print(*args, **kwargs):
-    # Convert all args to string and join with space
+# Configure advanced logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s: %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE, encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def log_print(*args, level='info', **kwargs):
     message = ' '.join(str(arg) for arg in args)
-    # Add timestamp
-    timestamped = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}"
-    # Print to terminal
-    print(timestamped, **kwargs)
-    # Append to log file
-    try:
-        with open(LOG_FILE, 'a', encoding='utf-8') as f:
-            f.write(timestamped + '\n')
-    except Exception as e:
-        print(f"[log_print error] {e}")
+    # Print to terminal (for backward compatibility)
+    print(message, **kwargs)
+    # Log to file and console with level
+    if level == 'info':
+        logger.info(message)
+    elif level == 'warning':
+        logger.warning(message)
+    elif level == 'error':
+        logger.error(message)
+    elif level == 'debug':
+        logger.debug(message)
+    else:
+        logger.info(message)

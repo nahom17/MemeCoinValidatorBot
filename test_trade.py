@@ -3,8 +3,10 @@
 Test trading functionality with the user's specific token
 """
 
-import os
+import sys, os
 from dotenv import load_dotenv
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+load_dotenv()
 from bot.trader import trade_local
 
 def test_trade():
@@ -12,7 +14,6 @@ def test_trade():
     print("🔍 Testing trade functionality...")
 
     # Load environment variables
-    load_dotenv()
     private_key = os.getenv("PRIVATE_KEY")
 
     if not private_key:

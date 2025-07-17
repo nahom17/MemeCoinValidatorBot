@@ -1,8 +1,12 @@
 
+import sys, os
+from dotenv import load_dotenv
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+load_dotenv()
+
 from flask import Flask, request, jsonify
 from utils.telegram_alerts import send_alert
 import json
-import os
 
 app = Flask(__name__)
 ALPHA_LOG = os.path.join("logs", "vcs_calls.json")

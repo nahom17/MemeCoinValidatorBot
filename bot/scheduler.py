@@ -3,6 +3,10 @@ import random
 import time
 import sqlite3
 import os
+import sys
+from dotenv import load_dotenv
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+load_dotenv()
 from bot.risk import is_token_safe
 from bot.buyer import buy_token
 from bot.seller import should_sell, sell_token

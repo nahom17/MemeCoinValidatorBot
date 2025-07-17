@@ -6,6 +6,8 @@ from datetime import datetime
 import logging
 import subprocess
 import signal
+from functools import wraps
+from flask import Response
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +27,28 @@ os.makedirs(LOG_DIR, exist_ok=True)
 # Remove backend endpoints for bot control
 # Remove: /start-bot, /stop-bot, /bot-status, and bot_process global
 
+# TODO: Add basic authentication for production deployment
+
+def check_auth(username, password):
+    return username == os.environ.get('DASHBOARD_USER', 'admin') and password == os.environ.get('DASHBOARD_PASS', 'admin')
+
+def authenticate():
+    return Response(
+        'Authentication required', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'}
+    )
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
 @app.route("/")
+@requires_auth
 def dashboard():
     return render_template_string("""
 <!DOCTYPE html>
