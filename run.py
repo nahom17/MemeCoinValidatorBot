@@ -59,4 +59,5 @@ if __name__ == "__main__":
     threading.Thread(target=run_scanner, args=(handle_token_callback,), daemon=True).start()
 
     # Start Flask in main thread (required for debug=True)
-    app.run(debug=True, port=8080)
+    app.run(debug=True, use_reloader=False, port=8080)
+

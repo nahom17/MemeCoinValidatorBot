@@ -31,8 +31,8 @@ def test_correct_endpoints():
     # Test trade-local endpoint (this is the one we're using)
     try:
         response = requests.post("https://pumpportal.fun/api/trade-local",
-                               data={"test": "test"},
-                               timeout=5)
+                            data={"test": "test"},
+                            timeout=5)
         print(f"✅ /api/trade-local: {response.status_code}")
         if response.status_code == 400:
             print("   This is expected - endpoint exists but needs proper parameters")
@@ -42,8 +42,8 @@ def test_correct_endpoints():
     # Test trade endpoint (requires API key)
     try:
         response = requests.post("https://pumpportal.fun/api/trade",
-                               data={"test": "test"},
-                               timeout=5)
+                            data={"test": "test"},
+                            timeout=5)
         print(f"⚠️  /api/trade: {response.status_code}")
         if response.status_code == 403:
             print("   This is expected - requires API key")
