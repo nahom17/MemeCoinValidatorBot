@@ -3,12 +3,11 @@ from bot.risk import is_token_safe
 from bot.buyer import buy_token
 from utils.log_print import log_print
 
-# Multiple WebSocket endpoints for Pump.fun
-# All endpoints now use the `/api/ws` feed which emits `new_token` events.
+# Single WebSocket endpoint for Pump.fun
+# The previous `data/v1` endpoint no longer works; use the new `/api/ws` feed
+# which emits `new_token` events.
 WEBSOCKET_ENDPOINTS = [
     "wss://pumpportal.fun/api/ws",  # Global public endpoint
-    "wss://pump-frontend-mainnet.helius-rpc.com/api/ws",  # Helius fallback
-    "wss://frontend-api.pump-mirror.fun/api/ws"  # Mirror (may need Google DNS or VPN)
 ]
 
 current_ws_index = 0
