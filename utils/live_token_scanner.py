@@ -19,11 +19,9 @@ async def handle_new_token(data):
 
 async def scanner():
     async with websockets.connect(PUMPFUN_WS) as ws:
-        try:
-            # Subscribe to the new token feed.
-            await ws.send(json.dumps({"type": "subscribe", "channel": "new_token"}))
-        except Exception as e:
-            log_print(f"[Scanner Error] Failed to subscribe: {e}")
+        # The feed pushes events without any subscription message.
+        # Sending a subscribe request results in an error response, so we just
+        # listen immediately after connecting.
         while True:
             try:
                 msg = await ws.recv()

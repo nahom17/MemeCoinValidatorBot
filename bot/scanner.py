@@ -68,11 +68,9 @@ def run_scanner(on_token_callback):
 
     def on_open(ws):
         log_print("✅ WebSocket connected and listening for new tokens...")
-        # Subscribe to new token events if required by the server.
-        try:
-            ws.send(json.dumps({"type": "subscribe", "channel": "new_token"}))
-        except Exception as e:
-            log_print(f"⚠️ Failed to send subscribe message: {e}")
+        # The public feed immediately streams new tokens; no subscription needed.
+        # Some endpoints return errors if a subscribe message is sent, so we
+        # simply start listening without sending anything.
 
     def on_error(ws, error):
         log_print(f"❌ WebSocket Error: {error}")
