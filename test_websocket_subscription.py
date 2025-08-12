@@ -9,7 +9,6 @@ import websocket
 
 
 WEBSOCKET_URL = "wss://pumpportal.fun/api/ws"
-SUBSCRIBE_MSG = {"type": "subscribe", "channel": "new_token"}
 
 
 def on_message(ws, message):
@@ -35,9 +34,8 @@ def on_close(ws, code, msg):
 
 
 def on_open(ws):
+    # The feed immediately starts streaming data once connected.
     print("📡 Connected to PumpPortal WebSocket")
-    ws.send(json.dumps(SUBSCRIBE_MSG))
-    print("✅ Subscription message sent")
 
 
 def test_websocket_subscription():
