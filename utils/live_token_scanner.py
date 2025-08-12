@@ -6,7 +6,8 @@ from utils.telegram_alerts import send_alert
 from utils.log_print import log_print
 
 # Pump.fun WebSocket for real-time new token events
-PUMPFUN_WS = "wss://pumpportal.io/api/ws"
+# The new feed streams `new_token` events on the `/api/ws` endpoint.
+PUMPFUN_WS = "wss://pumpportal.fun/api/ws"
 
 async def handle_new_token(data):
     symbol = data.get("symbol", "Unknown")
@@ -18,6 +19,11 @@ async def handle_new_token(data):
 
 async def scanner():
     async with websockets.connect(PUMPFUN_WS) as ws:
+        try:
+            # Subscribe to the new token feed.
+            await ws.send(json.dumps({"type": "subscribe", "channel": "new_token"}))
+        except Exception as e:
+            log_print(f"[Scanner Error] Failed to subscribe: {e}")
         while True:
             try:
                 msg = await ws.recv()

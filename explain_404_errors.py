@@ -24,7 +24,7 @@ def explain_404_errors():
     print("   - https://pumpportal.fun/api/trade ✅ (requires API key)")
     print()
     print("   Real-time Data:")
-    print("   - wss://pumpportal.fun/api/data ✅ (WebSocket)")
+    print("   - wss://pumpportal.fun/api/ws ✅ (WebSocket)")
     print()
     print("   Subscriptions:")
     print("   - subscribeNewToken ✅")
