@@ -18,7 +18,7 @@ def test_correct_endpoints():
         "https://pumpportal.fun/api/trade-local",
 
         # WebSocket endpoint (we'll just check if it's mentioned)
-        "wss://pumpportal.fun/api/data",
+        "wss://pumpportal.fun/api/ws",
 
         # Additional endpoints that might exist
         "https://pumpportal.fun/api/quote",
@@ -59,7 +59,7 @@ def test_correct_endpoints():
     print("1. The endpoints we were trying (/api/recent, /api/tokens) don't exist")
     print("2. The trading endpoint (/api/trade-local) DOES exist and works")
     print("3. For token detection, we need to use website scraping")
-    print("4. For real-time data, we can use WebSocket: wss://pumpportal.fun/api/data")
+    print("4. For real-time data, we can use WebSocket: wss://pumpportal.fun/api/ws")
 
     print("\n🎯 Current Bot Status:")
     print("✅ Trading API: Working correctly")

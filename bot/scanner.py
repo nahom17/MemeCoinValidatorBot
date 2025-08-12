@@ -4,10 +4,11 @@ from bot.buyer import buy_token
 from utils.log_print import log_print
 
 # Multiple WebSocket endpoints for Pump.fun
+# All endpoints now use the `/api/ws` feed which emits `new_token` events.
 WEBSOCKET_ENDPOINTS = [
-    "wss://pumpportal.fun/ws",  # Global public endpoint
-    "wss://pump-frontend-mainnet.helius-rpc.com/ws",  # Helius fallback
-    "wss://frontend-api.pump-mirror.fun/ws"  # Mirror (may need Google DNS or VPN)
+    "wss://pumpportal.fun/api/ws",  # Global public endpoint
+    "wss://pump-frontend-mainnet.helius-rpc.com/api/ws",  # Helius fallback
+    "wss://frontend-api.pump-mirror.fun/api/ws"  # Mirror (may need Google DNS or VPN)
 ]
 
 current_ws_index = 0
@@ -40,20 +41,25 @@ def run_scanner(on_token_callback):
         connect()
 
     def on_message(ws, message):
+        """Handle incoming messages from the Pump.fun feed."""
         try:
             data = json.loads(message)
-            tx_type = data.get("txType", data.get("type"))
 
             # Debug log every message
             log_print(f"📥 Received message: {data}")
 
-            if tx_type == "create":
+            # The new feed sends messages in the form:
+            # {"type": "new_token", "data": { ... token fields ... }}
+            if data.get("type") == "new_token":
+                token_info = data.get("data", {})
                 token = {
-                    "mint": data["mint"],
-                    "symbol": data.get("symbol", data["mint"][:5]),
-                    "sol_raised": data.get("sol_raised", 0)
+                    "mint": token_info.get("mint"),
+                    "symbol": token_info.get("symbol", token_info.get("mint", "")[:5]),
+                    "sol_raised": token_info.get("sol_raised", 0),
                 }
-                log_print(f"🚀 New token detected: {token['symbol']} ({token['mint']}) — {token['sol_raised']} SOL")
+                log_print(
+                    f"🚀 New token detected: {token['symbol']} ({token['mint']}) — {token['sol_raised']} SOL"
+                )
                 if is_token_safe(token):
                     buy_token(token)
 
@@ -62,6 +68,11 @@ def run_scanner(on_token_callback):
 
     def on_open(ws):
         log_print("✅ WebSocket connected and listening for new tokens...")
+        # Subscribe to new token events if required by the server.
+        try:
+            ws.send(json.dumps({"type": "subscribe", "channel": "new_token"}))
+        except Exception as e:
+            log_print(f"⚠️ Failed to send subscribe message: {e}")
 
     def on_error(ws, error):
         log_print(f"❌ WebSocket Error: {error}")
