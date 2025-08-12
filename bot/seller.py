@@ -24,7 +24,11 @@ def sell_token(token):
 
         keypair = Keypair.from_bytes(base58.b58decode(private_key))
         wallet = keypair.pubkey()
-        token_address = Pubkey.from_string(token["address"])
+        token_address = token.get("address") or token.get("mint")
+        if not token_address:
+            print("❌ No token address provided.")
+            return False
+        token_address = Pubkey.from_string(token_address)
 
         txid = trade_local(
             buyer=wallet,
