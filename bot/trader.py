@@ -92,7 +92,7 @@ def sign_and_send_transaction(transaction_bytes, private_key, rpc_url):
     except Exception as e:
         raise Exception(f"Failed to sign and send transaction: {e}")
 
-def trade_local(private_key, token_mint, side="buy", amount_sol=0.00001):
+def trade_local(private_key, token_mint, side="buy", amount_sol=0.01):
     """Execute real trade on PumpFun using PumpPortal API"""
     try:
         # Setup keypair and get public key
